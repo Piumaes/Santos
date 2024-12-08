@@ -1,0 +1,38 @@
+const { extractMessages } = require("./extractMessages.js")
+const { setupMessagingServices } = require("./messagingServices/setupMessagingServices.js");
+const { menuCaption } = require("./features/menuCaption.js");
+
+exports.handleCommands = async (sock) =>{
+  sock.ev.on("messages.upsert", ({ messages })=>{
+    
+    const messageDetails = messages[0];
+    
+    if(!messageDetails.message) return
+    
+    try{
+      
+      const { finalMessageText, from, isCommand, commandName, args, userName} = extractMessages(messageDetails);
+      const { enviarAudioGravacao, enviarImagem } = setupMessagingServices(sock, from, messageDetails)
+      
+      switch(commandName){
+        
+        case "im":
+          case "help":
+            enviarImagem("assets/imagens/menu.jpg")
+         break;
+        
+        case "menu":
+          case "help":
+            enviarImagem("assets/imagens/menu.jpg", menuCaption(userName))
+            
+            break;
+        
+      }
+      
+    }catch(error){
+      console.log("ocorreu um erro:", error)
+    }
+    
+    
+  })
+}
